@@ -1,27 +1,44 @@
-import { BrainCircuit, Briefcase, LineChart, ScrollText } from "lucide-react";
+import { BrainCircuit, Briefcase, LineChart, ScrollText,   } from "lucide-react";
 
 export const features = [
   {
     icon: <BrainCircuit className="w-10 h-10 mb-4 text-primary" />,
-    title: "AI-Powered Career Guidance",
+    title: "AI Mock Interview ",
     description:
-      "Get personalized career advice and insights powered by advanced AI technology.",
+      "Face dynamic, role-specific interviews. Prevo adapts to your answers and provides actionable feedback on your delivery.",
   },
   {
-    icon: <Briefcase className="w-10 h-10 mb-4 text-primary" />,
-    title: "Interview Preparation",
+    icon: <BrainCircuit   className="w-10 h-10 mb-4 text-primary" />,
+    title: "Mock Quiz ",
     description:
-      "Practice with role-specific questions and get instant feedback to improve your performance.",
+      "Sharpen your domain knowledge with rapid-fire, role-specific quizzes and identify your blind spots immediately.",
   },
   {
     icon: <LineChart className="w-10 h-10 mb-4 text-primary" />,
-    title: "Industry Insights",
+    title: "Industry Insights  ",
     description:
-      "Stay ahead with real-time industry trends, salary data, and market analysis.",
+      "Access real-time data on salary expectations, hiring patterns, and the top skills needed to stay competitive in your field.",
   },
   {
     icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
     title: "Smart Resume Creation",
-    description: "Generate ATS-optimized resumes with AI assistance.",
+    description: "ransform your experience into a top-tier, ATS-optimized resume designed to pass the filters and land the interview.  ",
+  },{
+    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
+    title: "Smart Cover Letter Creation",
+    description: "Create unique, role-specific cover letters instantly. Stand out from the crowd without the writing struggle."
+  },{
+    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
+    title: "Feedback of interview",
+    description: "Don't guess how you did. Get instant, AI-driven insights on your strengths and exact areas for improvement.",
+  },{
+    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
+    title: "Interview Tips",
+    description: "Access a curated library of industry-specific tips, behavioral frameworks, and best practices to ace any question.",
+  },
+  {
+    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
+    title: "Expression Tracking",
+    description: "Master your body language. Our vision AI tracks your micro-expressions to help you look exactly as confident as you sound.",
   },
 ];

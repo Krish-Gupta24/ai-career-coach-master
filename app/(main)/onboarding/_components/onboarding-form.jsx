@@ -83,8 +83,8 @@ const OnboardingForm = ({ industries }) => {
             Complete Your Profile
           </CardTitle>
           <CardDescription>
-            Select your industry to get personalized career insights and
-            recommendations.
+            Select your industry to get personalized interview and career insights.
+            
           </CardDescription>
         </CardHeader>
         <CardContent>
