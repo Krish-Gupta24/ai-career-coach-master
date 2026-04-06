@@ -38,20 +38,21 @@ export default function LandingPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {features.map((feature, index) => (
-              <Card
-                key={index}
-                className="border-2 hover:border-primary transition-colors duration-300"
-              >
-                <CardContent className="pt-6 text-center flex flex-col items-center">
-                  <div className="flex flex-col items-center justify-center">
-                    {feature.icon}
-                    <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                    <p className="text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <Link href={feature.link} key={index}>
+                <Card className="border-2 hover:border-primary transition-colors duration-300 cursor-pointer">
+                  <CardContent className="pt-6 text-center flex flex-col items-center">
+                    <div className="flex flex-col items-center justify-center">
+                      {feature.icon}
+                      <h3 className="text-xl font-bold mb-2">
+                        {feature.title}
+                      </h3>
+                      <p className="text-muted-foreground">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
@@ -190,7 +191,7 @@ export default function LandingPage() {
       <section className="w-full bg-[#0e0b0d]">
         <div className="mx-auto py-24  bg-[#0e0b0d] rounded-lg">
           <div className="flex flex-col items-center justify-center space-y-4 text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl text-[#ce4646] font-bold tracking-tighter text-primary-foreground sm:text-4xl md:text-5xl">
+            <h2 className="text-3xl text-[#ce4646] font-bold tracking-tighter sm:text-4xl md:text-5xl">
               Ready to Accelerate Your Career?
             </h2>
             <p className="mx-auto max-w-[600px]  md:text-xl">
