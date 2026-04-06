@@ -4,14 +4,19 @@ import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { TypeAnimation } from "react-type-animation";
+import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 
 const HeroSection = () => {
   const imageRef = useRef(null);
 
   useEffect(() => {
-    const imageElement = imageRef.current;
-
     const handleScroll = () => {
+      const imageElement = imageRef.current;
+
+      // ✅ prevent crash
+      if (!imageElement) return;
+
       const scrollPosition = window.scrollY;
       const scrollThreshold = 100;
 
@@ -23,6 +28,7 @@ const HeroSection = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -30,28 +36,45 @@ const HeroSection = () => {
     <section className="w-full pt-36 md:pt-48 pb-10">
       <div className="space-y-6 text-center">
         <div className="space-y-6 mx-auto">
+          {/* ✅ TYPEWRITER FIXED */}
           <h1 className="text-5xl font-bold md:text-6xl lg:text-7xl xl:text-8xl gradient-title animate-gradient">
-            Your AI Interview Coach for
+            <TypeAnimation
+              sequence={[
+                "Your AI Interview Coach",
+                1500,
+                "Crack Interviews with Confidence",
+                1500,
+                "Get Hired Faster with AI",
+                1500,
+              ]}
+              wrapper="span"
+              speed={50}
+              repeat={Infinity}
+            />
             <br />
-            Professional Success
           </h1>
+
           <p className="mx-auto max-w-[600px] md:text-xl">
             Advance your career with personalized guidance, interview
             preparation, real time performance analysis and AI-powered tools for
             job success.
           </p>
         </div>
+
         <div className="flex justify-center space-x-4">
           <Link href="/dashboard">
-            <Button
-              size="lg"
-              className=" bg-[#ce4646] text-[#cdc2a4] hover:bg-[#cdc2a4] hover:text-[#0e0b0d] px-8"
+            <HoverBorderGradient
+              as="button"
+              containerClassName="rounded-lg"
+              className="bg-[#ce4646] text-[#cdc2a4] px-8 py-3 text-base font-semibold flex items-center justify-center hover:bg-[#cdc2a4] hover:text-[#0e0b0d] transition-all duration-300"
             >
               Get Started
-            </Button>
+            </HoverBorderGradient>
           </Link>
         </div>
+
         <div className="hero-image-wrapper mt-5 md:mt-0">
+          {/* ✅ ref only on div */}
           <div ref={imageRef} className="hero-image">
             <Image
               src="/meoew.jpeg"

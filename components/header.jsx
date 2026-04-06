@@ -1,10 +1,10 @@
 import React from "react";
 import { Button } from "./ui/button";
 import {
-  PenBox,
+  Home,
   LayoutDashboard,
-  FileText,
-  GraduationCap,
+  BrainCircuit,
+  MessageSquare,
   ChevronDown,
   StarsIcon,
 } from "lucide-react";
@@ -52,16 +52,43 @@ export default async function Header() {
           </SignedOut>
 
           <SignedIn>
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-10 h-10",
-                  userButtonPopoverCard: "shadow-xl",
-                  userPreviewMainIdentifier: "font-semibold",
-                },
-              }}
-              afterSignOutUrl="/"
-            />
+            <div className="flex items-center gap-4">
+              {/* Home */}
+              <Link
+                href="/"
+                className="p-2 rounded-lg hover:bg-muted transition"
+              >
+                Home
+              </Link>
+
+              {/* Interview */}
+              <Link
+                href="/ai-call"
+                className="p-2 rounded-lg hover:bg-muted transition"
+              >
+                Interview
+              </Link>
+
+              {/* Feedback */}
+              <Link
+                href="/interview"
+                className="p-2 rounded-lg hover:bg-muted transition"
+              >
+                Feedback
+              </Link>
+
+              {/* User */}
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "w-10 h-10",
+                    userButtonPopoverCard: "shadow-xl",
+                    userPreviewMainIdentifier: "font-semibold",
+                  },
+                }}
+                afterSignOutUrl="/"
+              />
+            </div>
           </SignedIn>
         </div>
       </nav>

@@ -15,7 +15,7 @@ export const features = [
     title: <span className="text-[#cdc2a4]">AI Mock Interview</span>,
     description:
       "Face dynamic, role-specific interviews. Prevo adapts to your answers and provides actionable feedback on your delivery.",
-    link: "/home2",
+    link: "/ai-call",
   },
   {
     icon: < HelpCircle className="w-10 h-10 mb-4 text-primary"/>,

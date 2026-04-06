@@ -27,6 +27,7 @@ model User {
   assessments   Assessment[]
   resume        Resume?
   coverLetter   CoverLetter[]
+  interviews    Interview[]
 }
 
 model Assessment {
@@ -97,3 +98,24 @@ model IndustryInsight {
 
   @@index([industry])
 }
+
+model Interview {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  role        String?
+  level       String?
+
+  questions   Json?   // ["q1", "q2"]
+  responses   Json?   // ["ans1", "ans2"]
+  feedback    Json?   // [{question, answer, feedback, score}]
+
+  finalized   Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
