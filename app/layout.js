@@ -24,10 +24,9 @@ export default function RootLayout({ children }) {
         <head>
           <link rel="icon" href="/logo.png" sizes="any" />
         </head>
-        <body className={`${inter.className}`}>
+        <body className={`bg-[#0e0b0d] text-[#cdc2a4] ${inter.className}`}>
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >
