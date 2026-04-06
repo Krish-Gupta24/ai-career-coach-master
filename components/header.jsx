@@ -63,7 +63,7 @@ export default async function Header() {
 
               {/* Interview */}
               <Link
-                href="/home2"
+                href="/ai-call"
                 className="p-2 rounded-lg hover:bg-muted transition"
               >
                 Interview

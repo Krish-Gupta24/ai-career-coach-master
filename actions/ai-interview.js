@@ -62,86 +62,144 @@ export async function createFeedback({ interviewId, transcript }) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    // ✅ Validate interview exists
     const interview = await db.interview.findUnique({
       where: { id: interviewId },
     });
 
-    if (!interview) {
-      throw new Error("Interview not found");
+    if (!interview) throw new Error("Interview not found");
+
+    // ✅ STEP 1: Convert transcript → Q&A
+    const qaPairs = [];
+    let currentQuestion = null;
+
+    for (let msg of transcript) {
+      if (msg.role === "assistant") {
+        currentQuestion = msg.content;
+      }
+
+      if (msg.role === "user" && currentQuestion) {
+        qaPairs.push({
+          question: currentQuestion,
+          answer: msg.content,
+        });
+        currentQuestion = null;
+      }
     }
 
+    // ✅ STEP 2: Generate feedback per question
+    const detailedFeedback = await Promise.all(
+      qaPairs.map(async (item, index) => {
+        try {
+          const response = await groq.chat.completions.create({
+            model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
+            messages: [
+              {
+                role: "user",
+                content: `
+Evaluate this interview response.
+
+Question: ${item.question}
+Answer: ${item.answer}
+
+Return ONLY JSON:
+{
+  "feedback": "short feedback",
+  "score": number
+}
+                `,
+              },
+            ],
+          });
+
+          let text = response.choices[0]?.message?.content || "";
+          text = text.replace(/```json|```/g, "").trim();
+
+          const parsed = JSON.parse(text);
+
+          return {
+            number: index + 1,
+            question: item.question,
+            answer: item.answer,
+            feedback: parsed.feedback,
+            score: parsed.score,
+          };
+        } catch (err) {
+          console.log("Per-question AI error:", err.message);
+
+          return {
+            number: index + 1,
+            question: item.question,
+            answer: item.answer,
+            feedback: "Decent answer but can improve clarity",
+            score: 6,
+          };
+        }
+      }),
+    );
+
+    // ✅ STEP 3: Overall summary (your existing logic)
     const formattedTranscript = transcript
       .map((t) => `- ${t.role}: ${t.content}`)
       .join("\n");
 
-    const prompt = `
-You are an AI interviewer analyzing a mock interview.
-
-Transcript:
-${formattedTranscript}
-
-Return ONLY JSON in this format:
-{
-  "totalScore": number,
-  "categoryScores": {
-    "communication": number,
-    "technical": number,
-    "problemSolving": number,
-    "cultureFit": number,
-    "confidence": number
-  },
-  "strengths": ["string"],
-  "areasForImprovement": ["string"],
-  "finalAssessment": "string"
-}
-`;
-
-    let result;
+    let summary;
 
     try {
       const response = await groq.chat.completions.create({
         model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          {
+            role: "user",
+            content: `
+Analyze this interview transcript:
+
+${formattedTranscript}
+
+Return ONLY JSON:
+{
+  "totalScore": number,
+  "strengths": ["string"],
+  "areasForImprovement": ["string"],
+  "finalAssessment": "string"
+}
+            `,
+          },
+        ],
       });
 
       let text = response.choices[0]?.message?.content || "";
       text = text.replace(/```json|```/g, "").trim();
 
-      result = JSON.parse(text);
-
-      // ✅ Validate AI output
-      if (!result.totalScore || !result.categoryScores) {
-        throw new Error("Incomplete AI response");
-      }
-    } catch (aiError) {
-      console.error("AI Error:", aiError.message);
-
-      // ✅ fallback (never break app)
-      result = {
+      summary = JSON.parse(text);
+    } catch {
+      summary = {
         totalScore: 70,
-        categoryScores: {
-          communication: 70,
-          technical: 65,
-          problemSolving: 68,
-          cultureFit: 75,
-          confidence: 72,
-        },
-        strengths: ["Good communication", "Clear thinking"],
-        areasForImprovement: ["Improve technical depth"],
-        finalAssessment: "Decent performance with room for improvement",
+        strengths: ["Good communication"],
+        areasForImprovement: ["Improve depth"],
+        finalAssessment: "Average performance",
       };
     }
 
+    // ✅ STEP 4: Save EVERYTHING
     const feedback = await db.feedback.create({
       data: {
         interviewId,
         userId,
-        totalScore: result.totalScore,
-        categoryScores: result.categoryScores,
-        strengths: result.strengths,
-        areasForImprovement: result.areasForImprovement,
-        finalAssessment: result.finalAssessment,
+        totalScore: summary.totalScore,
+        strengths: summary.strengths,
+        areasForImprovement: summary.areasForImprovement,
+        finalAssessment: summary.finalAssessment,
+        detailedFeedback, // 🔥 IMPORTANT
+      },
+    });
+
+    // ✅ ALSO update interview (optional but powerful)
+    await db.interview.update({
+      where: { id: interviewId },
+      data: {
+        responses: qaPairs.map((q) => q.answer),
+        feedback: detailedFeedback,
+        finalized: true,
       },
     });
 
