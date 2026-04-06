@@ -227,3 +227,5 @@ export const dummyInterviews = [
     createdAt: "2024-03-14T15:30:00Z",
   },
 ];
+
+export const WORKFLOW_ID = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;

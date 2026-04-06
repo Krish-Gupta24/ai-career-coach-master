@@ -20,6 +20,7 @@ import Image from "next/image";
 import { features } from "@/data/features";
 import { testimonial } from "@/data/testimonial";
 import { faqs } from "@/data/faqs";
+import FeatureCard from "@/components/FeatureCard";
 import { howItWorks } from "@/data/howItWorks";
 
 export default function LandingPage() {
@@ -39,19 +40,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {features.map((feature, index) => (
               <Link href={feature.link} key={index}>
-                <Card className="border-2 hover:border-primary transition-colors duration-300 cursor-pointer">
-                  <CardContent className="pt-6 text-center flex flex-col items-center">
-                    <div className="flex flex-col items-center justify-center">
-                      {feature.icon}
-                      <h3 className="text-xl font-bold mb-2">
-                        {feature.title}
-                      </h3>
-                      <p className="text-muted-foreground">
-                        {feature.description}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <FeatureCard feature={feature} />
               </Link>
             ))}
           </div>
