@@ -9,9 +9,11 @@ export function cn(...inputs) {
 const techIconBaseURL = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons";
 
 const normalizeTechName = (tech) => {
+  if (!tech) return null;
+
   const key = tech.toLowerCase().replace(/\.js$/, "").replace(/\s+/g, "");
 
-  return mappings[key] || key;
+  return mappings[key] || key; // fallback if mapping not found
 };
 
 const checkIconExists = async (url) => {
@@ -29,24 +31,28 @@ export const getTechLogos = async (techArray = []) => {
 
     return {
       tech,
-      url: `${techIconBaseURL}/${normalized}/${normalized}-original.svg`,
+      url: normalized
+        ? `${techIconBaseURL}/${normalized}/${normalized}-original.svg`
+        : "/tech.svg",
     };
   });
 
   const results = await Promise.all(
-    logoURLs.map(async ({ tech, url }) => ({
-      tech,
-      url: (await checkIconExists(url)) ? url : "/tech.svg",
-    })),
+    logoURLs.map(async ({ tech, url }) => {
+      const exists = await checkIconExists(url);
+
+      return {
+        tech,
+        url: exists ? url : "/tech.svg",
+      };
+    }),
   );
 
   return results;
 };
 
 export const getRandomInterviewCover = () => {
-  if (!interviewCovers || interviewCovers.length === 0) {
-    return "/covers/default.png";
-  }
+  if (!interviewCovers?.length) return "/covers/default.png";
 
   const randomIndex = Math.floor(Math.random() * interviewCovers.length);
   return `/covers${interviewCovers[randomIndex]}`;
