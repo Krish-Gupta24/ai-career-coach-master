@@ -1,5 +1,14 @@
-import { BrainCircuit, Briefcase, LineChart, ScrollText,   } from "lucide-react";
-
+import { 
+  BrainCircuit, 
+  Briefcase, 
+  LineChart, 
+  ScrollText,
+  HelpCircle, 
+  ClipboardList,
+  MonitorCheck,
+  NotebookPen,
+  SquareUserRound 
+} from "lucide-react";
 export const features = [
   {
     icon: <BrainCircuit className="w-10 h-10 mb-4 text-primary" />,
@@ -9,7 +18,7 @@ export const features = [
     link: "/home2",
   },
   {
-    icon: <BrainCircuit className="w-10 h-10 mb-4 text-primary" />,
+    icon: < HelpCircle className="w-10 h-10 mb-4 text-primary"/>,
     title: <span className="text-[#cdc2a4]">Mock Quiz</span>,
     description:
       "Sharpen your domain knowledge with rapid-fire, role-specific quizzes and identify your blind spots immediately.",
@@ -30,28 +39,28 @@ export const features = [
     link:"/resume"
   },
   {
-    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
+    icon: <ClipboardList className="w-10 h-10 mb-4 text-primary" />,
     title: <span className="text-[#cdc2a4]">Smart Cover Letter Creation</span>,
     description:
       "Create unique, role-specific cover letters instantly. Stand out from the crowd without the writing struggle.",
     link:"/ai-cover-letter"
   },
   {
-    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
+    icon: <MonitorCheck className="w-10 h-10 mb-4 text-primary" />,
     title: <span className="text-[#cdc2a4]">Feedback of interview</span>,
     description:
       "Don't guess how you did. Get instant, AI-driven insights on your strengths and exact areas for improvement.",
     link:"/interview"
   },
   {
-    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
+    icon: <NotebookPen className="w-10 h-10 mb-4 text-primary" />,
     title: <span className="text-[#cdc2a4]">Interview Tips</span>,
     description:
       "Access a curated library of industry-specific tips, behavioral frameworks, and best practices to ace any question.",
     link:"/"
   },
   {
-    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
+    icon: <SquareUserRound  className="w-10 h-10 mb-4 text-primary" />,
     title: <span className="text-[#cdc2a4]">Expression Tracking</span>,
     description:
       "Master your body language. Our vision AI tracks your micro-expressions to help you look exactly as confident as you sound.",
