@@ -12,7 +12,11 @@ import {
 } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { generateQuiz, saveQuizResult } from "@/actions/interview";
+import {
+  generateQuiz,
+  saveQuizResult,
+  explainQuizAnswer,
+} from "@/actions/interview";
 import QuizResult from "./quiz-result";
 import useFetch from "@/hooks/use-fetch";
 import { BarLoader } from "react-spinners";
@@ -21,6 +25,9 @@ export default function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [showExplanation, setShowExplanation] = useState(false);
+  /** Per-question AI explanations keyed by index (tailored to user's chosen option) */
+  const [explanationsByIdx, setExplanationsByIdx] = useState({});
+  const [explanationLoading, setExplanationLoading] = useState(false);
 
   const {
     loading: generatingQuiz,
@@ -45,6 +52,12 @@ export default function Quiz() {
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = answer;
     setAnswers(newAnswers);
+    setExplanationsByIdx((prev) => {
+      const next = { ...prev };
+      delete next[currentQuestion];
+      return next;
+    });
+    setShowExplanation(false);
   };
 
   const handleNext = () => {
@@ -53,6 +66,39 @@ export default function Quiz() {
       setShowExplanation(false);
     } else {
       finishQuiz();
+    }
+  };
+
+  const handleShowExplanation = async () => {
+    const idx = currentQuestion;
+    const q = quizData[idx];
+    const userAns = answers[idx];
+    if (!userAns) return;
+
+    if (explanationsByIdx[idx]) {
+      setShowExplanation(true);
+      return;
+    }
+
+    setExplanationLoading(true);
+    try {
+      const text = await explainQuizAnswer({
+        question: q.question,
+        options: q.options,
+        correctAnswer: q.correctAnswer,
+        userAnswer: userAns,
+      });
+      setExplanationsByIdx((prev) => ({ ...prev, [idx]: text }));
+      setShowExplanation(true);
+    } catch {
+      toast.error("Could not generate explanation. Try again.");
+      const fallback =
+        q.explanation?.trim() ||
+        "Select an answer and try again, or finish the quiz to see saved explanations.";
+      setExplanationsByIdx((prev) => ({ ...prev, [idx]: fallback }));
+      setShowExplanation(true);
+    } finally {
+      setExplanationLoading(false);
     }
   };
 
@@ -68,8 +114,13 @@ export default function Quiz() {
 
   const finishQuiz = async () => {
     const score = calculateScore();
+    const enrichedQuestions = quizData.map((q, i) => ({
+      ...q,
+      explanation:
+        explanationsByIdx[i]?.trim() || q.explanation?.trim() || "",
+    }));
     try {
-      await saveQuizResultFn(quizData, answers, score);
+      await saveQuizResultFn(enrichedQuestions, answers, score);
       toast.success("Quiz completed!");
     } catch (error) {
       toast.error(error.message || "Failed to save quiz results");
@@ -80,6 +131,7 @@ export default function Quiz() {
     setCurrentQuestion(0);
     setAnswers([]);
     setShowExplanation(false);
+    setExplanationsByIdx({});
     generateQuizFn();
     setResultData(null);
   };
@@ -143,20 +195,30 @@ export default function Quiz() {
         </RadioGroup>
 
         {showExplanation && (
-          <div className="mt-4 p-4 bg-muted rounded-lg">
-            <p className="font-medium">Explanation:</p>
-            <p className="text-muted-foreground">{question.explanation}</p>
+          <div className="mt-4 rounded-lg border bg-muted/60 p-4">
+            <p className="font-medium">Explanation</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {explanationsByIdx[currentQuestion] ||
+                question.explanation ||
+                "No explanation available."}
+            </p>
+          </div>
+        )}
+        {explanationLoading && (
+          <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+            <BarLoader width={120} height={4} color="gray" />
+            <span>Generating explanation…</span>
           </div>
         )}
       </CardContent>
       <CardFooter className="flex justify-between">
         {!showExplanation && (
           <Button
-            onClick={() => setShowExplanation(true)}
+            onClick={handleShowExplanation}
             variant="outline"
-            disabled={!answers[currentQuestion]}
+            disabled={!answers[currentQuestion] || explanationLoading}
           >
-            Show Explanation
+            {explanationLoading ? "Generating…" : "Show explanation"}
           </Button>
         )}
         <Button

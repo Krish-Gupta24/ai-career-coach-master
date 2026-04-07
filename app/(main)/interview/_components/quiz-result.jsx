@@ -52,8 +52,10 @@ export default function QuizResult({
                 {!q.isCorrect && <p>Correct answer: {q.answer}</p>}
               </div>
               <div className="text-sm bg-muted p-2 rounded">
-                <p className="font-medium">Explanation:</p>
-                <p>{q.explanation}</p>
+                <p className="font-medium">Explanation</p>
+                <p className="mt-1 leading-relaxed text-muted-foreground">
+                  {q.explanation?.trim() || "No explanation available."}
+                </p>
               </div>
             </div>
           ))}

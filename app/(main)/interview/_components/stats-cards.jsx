@@ -13,7 +13,9 @@ export default function StatsCards({ assessments }) {
 
   const getLatestAssessment = () => {
     if (!assessments?.length) return null;
-    return assessments[0];
+    return assessments.reduce((latest, a) =>
+      new Date(a.createdAt) > new Date(latest.createdAt) ? a : latest,
+    );
   };
 
   const getTotalQuestions = () => {

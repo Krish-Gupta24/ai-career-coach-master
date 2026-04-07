@@ -106,6 +106,9 @@ model Interview {
 
   role        String?
   level       String?
+  type        String?  // behavioural / technical / mix (VAPI)
+  techstack   String[] @default([])
+  coverImage  String?
 
   questions   Json?   // ["q1", "q2"]
   responses   Json?   // ["ans1", "ans2"]
@@ -116,6 +119,25 @@ model Interview {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  feedbacks   Feedback[]
+
+  @@index([userId])
+}
+
+model Feedback {
+  id                   String    @id @default(cuid())
+  interviewId          String
+  interview            Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  userId               String    // Clerk user id (matches server actions filters)
+  totalScore           Float
+  strengths            String[]
+  areasForImprovement  String[]
+  finalAssessment      String
+  detailedFeedback     Json?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([interviewId])
   @@index([userId])
 }
 

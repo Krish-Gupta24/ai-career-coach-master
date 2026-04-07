@@ -80,6 +80,22 @@ body {
   }
 }
 
+@keyframes caption-bar {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scaleY(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1.2);
+  }
+}
+
+.animate-caption-bar {
+  animation: caption-bar 0.9s ease-in-out infinite;
+}
+
 .hero-image-wrapper {
   perspective: 1000px;
 }

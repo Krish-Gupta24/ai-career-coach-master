@@ -7,16 +7,12 @@ import DisplayTechIcons from './DisplayTechIcons';
 import { getFeedbackByInterviewId } from '@/actions/ai-interview';
 const InterviewCard = async ({
   id,
-  userId,
   role,
   type,
   techstack,
   createdAt,
 }) => {
-  const feedback =
-    userId && id
-      ? await getFeedbackByInterviewId({ interviewId: id, userId })
-      : null;
+  const feedback = id ? await getFeedbackByInterviewId({ interviewId: id }) : null;
   const normalizedType = /mix/gi.test(type) ? 'Mixed' : type;
   const formattedDate = dayjs(
     feedback?.createdAt || createdAt || Date.now()

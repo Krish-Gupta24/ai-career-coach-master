@@ -8,8 +8,13 @@ import { getRandomInterviewCover } from "@/lib/utils";
 export async function POST(request) {
   const { type, role, level, techstack, amount } = await request.json();
 
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const { userId: clerkUserId } = await auth();
+  if (!clerkUserId) throw new Error("Unauthorized");
+
+  const user = await db.user.findUnique({
+    where: { clerkUserId },
+  });
+  if (!user) throw new Error("User not found");
 
   try {
     const { text: questionsText } = await generateText({
@@ -36,14 +41,22 @@ export async function POST(request) {
       throw new Error("Invalid AI response format");
     }
 
+    const stack =
+      typeof techstack === "string"
+        ? techstack
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+
     const interview = await db.interview.create({
       data: {
         role,
         type,
         level,
-        techstack: techstack.split(",").map((s) => s.trim()),
+        techstack: stack,
         questions: parsedQuestions,
-        userId,
+        userId: user.id,
         finalized: true,
         coverImage: getRandomInterviewCover(),
       },

@@ -8,14 +8,20 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-// ✅ Get interviews by logged-in user
-export async function getInterviewsByUserId() {
+// ✅ Get interviews by logged-in user (pass internal User.id from getCurrentUser)
+export async function getInterviewsByUserId(internalUserId) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const { userId: clerkUserId } = await auth();
+    if (!clerkUserId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId },
+    });
+    if (!user) return [];
+    if (internalUserId != null && internalUserId !== user.id) return [];
 
     return await db.interview.findMany({
-      where: { userId },
+      where: { userId: user.id },
       orderBy: { createdAt: "desc" },
     });
   } catch (error) {
@@ -25,15 +31,21 @@ export async function getInterviewsByUserId() {
 }
 
 // ✅ Get latest interviews (excluding current user)
-export async function getLatestInterviews({ limit = 20 }) {
+export async function getLatestInterviews({ limit = 20, userId: internalUserId } = {}) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const { userId: clerkUserId } = await auth();
+    if (!clerkUserId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId },
+    });
+    if (!user) return [];
+    if (internalUserId != null && internalUserId !== user.id) return [];
 
     return await db.interview.findMany({
       where: {
         finalized: true,
-        NOT: { userId },
+        NOT: { userId: user.id },
       },
       orderBy: { createdAt: "desc" },
       take: limit,

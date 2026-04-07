@@ -77,6 +77,13 @@ export default async function Header() {
                 Feedback
               </Link>
 
+              <Link
+                href="/tips"
+                className="p-2 rounded-lg hover:bg-muted transition"
+              >
+                Tips
+              </Link>
+
               {/* User */}
               <UserButton
                 appearance={{
