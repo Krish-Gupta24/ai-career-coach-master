@@ -77,7 +77,7 @@ const HeroSection = () => {
           {/* ✅ ref only on div */}
           <div ref={imageRef} className="hero-image">
             <Image
-              src="/banner.jpeg"
+              src="/meoew.jpeg"
               width={1280}
               height={720}
               alt="Dashboard Preview"

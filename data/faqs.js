@@ -1,28 +1,28 @@
 export const faqs = [
   {
-    question: "What makes prevo unique as a career development tool?",
+    question: "What makes PREVO a better interview coach? ",
     answer:
-      <span className="text-slate-50">prevo combines AI-powered career tools with industry-specific insights to help you advance your career. Our platform offers three main features: an intelligent resume builder, a cover letter generator, and an adaptive interview preparation system. Each tool is tailored to your industry and skills, providing personalized guidance for your professional journey.</span>,
+      <span className="text-slate-50">Unlike standard text AI or subjective human coaches, Prevo offers a fully immersive voice-and-video simulation. It asks dynamic follow-up questions while tracking your body language and speech pacing to deliver instant, data-driven feedback tailored to your exact target job.</span>,
   },
   {
-    question: "How does prevo create tailored content?",
+    question: " Where does Prevo get its Industry Insights data?",
     answer:
-      <span className="text-white">prevo learns about your industry, experience, and skills during onboarding. It then uses this information to generate customized resumes, cover letters, and interview questions. The content is specifically aligned with your professional background and industry standards, making it highly relevant and effective.</span>,
+      <span className="text-white">Prevo's insights aren't static. The AI analyzes real-time market trends, frequently occurring keywords in active job postings, and current industry benchmarks to ensure the skills and salary expectations you see are up to date.</span>,
   },
   {
     question: "How accurate and up-to-date are prevo's industry insights?",
     answer:
-      <span className="text-white">We update our industry insights weekly using advanced AI analysis of current market trends. This includes salary data, in-demand skills, and industry growth patterns. Our system constantly evolves to ensure you have the most relevant information for your career decisions.</span>,
+      <span className="text-white">Powered by real-time market trends and active job postings, Prevo’s AI continuously analyzes current ATS filtering criteria. This ensures the skills and keywords you practice reflect exactly what hiring managers want right now.</span>,
   },
   {
     question: "Is my data secure with prevo?",
     answer:
-      <span className="text-white">Absolutely. We prioritize the security of your professional information. All data is encrypted and securely stored using industry-standard practices. We use Clerk for authentication and never share your personal information with third parties.</span>,
+      <span className="text-white">Absolutely. Video and audio feeds are processed entirely in real-time and are never recorded or stored. Your resumes, cover letters, and interview responses are fully encrypted and never used to train public AI models.</span>,
   },
   {
     question: "How can I track my interview preparation progress?",
     answer:
-      <span className="text-white">prevo tracks your performance across multiple practice interviews, providing detailed analytics and improvement suggestions. You can view your progress over time, identify areas for improvement, and receive AI-generated tips to enhance your interview skills based on your responses.</span>,
+      <span className="text-white">Prevo's personalized analytics dashboard logs your performance after every session. You can visually track your improvement across key metrics over time—including your ATS keyword match rate, reduced filler words, speech pacing, and non-verbal confidence scores.</span>,
   },
   {
     question: "Can I edit the AI-generated content?",
