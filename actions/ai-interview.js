@@ -8,6 +8,86 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
+// ✅ Initialize Interview
+export async function initializeInterview() {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+    if (!user) throw new Error("User not found");
+
+    const interview = await db.interview.create({
+      data: {
+        userId: user.id,
+        status: "started",
+        type: "mix", // default or vapi
+      },
+    });
+
+    return { success: true, interviewId: interview.id };
+  } catch (error) {
+    console.error("Error initializing interview:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// ✅ Save Transcript Turn
+export async function saveTranscriptTurn(interviewId, role, content) {
+  try {
+    if (!interviewId || !content) return { success: false };
+
+    if (role === "assistant") {
+      const count = await db.interviewQuestion.count({
+        where: { interviewId }
+      });
+      await db.interviewQuestion.create({
+        data: {
+          interviewId,
+          questionText: content,
+          order: count + 1,
+        }
+      });
+    } else if (role === "user") {
+      const latestQuestion = await db.interviewQuestion.findFirst({
+        where: { interviewId },
+        orderBy: { order: 'desc' }
+      });
+
+      if (latestQuestion) {
+        await db.interviewAnswer.create({
+          data: {
+            interviewId,
+            questionId: latestQuestion.id,
+            answerText: content,
+          }
+        });
+      } else {
+        const dummyQ = await db.interviewQuestion.create({
+          data: {
+            interviewId,
+            questionText: "User initiated conversation:",
+            order: 0,
+          }
+        });
+        await db.interviewAnswer.create({
+          data: {
+            interviewId,
+            questionId: dummyQ.id,
+            answerText: content,
+          }
+        });
+      }
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error saving transcript turn:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 // ✅ Get interviews by logged-in user (pass internal User.id from getCurrentUser)
 export async function getInterviewsByUserId(internalUserId) {
   try {
@@ -69,34 +149,33 @@ export async function getInterviewById(id) {
 }
 
 // ✅ Create feedback (AI-powered)
-export async function createFeedback({ interviewId, transcript }) {
+export async function createFeedback({ interviewId }) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
     const interview = await db.interview.findUnique({
       where: { id: interviewId },
+      include: {
+        questions: {
+          include: {
+            answers: true
+          },
+          orderBy: { order: 'asc' }
+        }
+      }
     });
 
     if (!interview) throw new Error("Interview not found");
 
-    // ✅ STEP 1: Convert transcript → Q&A
-    const qaPairs = [];
-    let currentQuestion = null;
-
-    for (let msg of transcript) {
-      if (msg.role === "assistant") {
-        currentQuestion = msg.content;
-      }
-
-      if (msg.role === "user" && currentQuestion) {
-        qaPairs.push({
-          question: currentQuestion,
-          answer: msg.content,
-        });
-        currentQuestion = null;
-      }
-    }
+    // ✅ STEP 1: Convert DB rows to Q&A
+    const qaPairs = interview.questions.map(q => {
+      const answerText = q.answers.map(a => a.answerText).join(" ");
+      return {
+        question: q.questionText,
+        answer: answerText || "(No answer provided)"
+      };
+    });
 
     // ✅ STEP 2: Generate feedback per question
     const detailedFeedback = await Promise.all(
@@ -149,10 +228,8 @@ Return ONLY JSON:
       }),
     );
 
-    // ✅ STEP 3: Overall summary (your existing logic)
-    const formattedTranscript = transcript
-      .map((t) => `- ${t.role}: ${t.content}`)
-      .join("\n");
+    // ✅ STEP 3: Overall summary
+    const formattedTranscript = qaPairs.map(qa => `- Interviewer: ${qa.question}\n- You: ${qa.answer}`).join("\n\n");
 
     let summary;
 
@@ -205,12 +282,11 @@ Return ONLY JSON:
       },
     });
 
-    // ✅ ALSO update interview (optional but powerful)
+    // ✅ ALSO update interview
     await db.interview.update({
       where: { id: interviewId },
       data: {
-        responses: qaPairs.map((q) => q.answer),
-        feedback: detailedFeedback,
+        status: "completed",
         finalized: true,
       },
     });

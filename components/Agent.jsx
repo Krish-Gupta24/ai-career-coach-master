@@ -3,10 +3,10 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { vapi } from "@/lib/vapi.sdk";
 import { interviewer } from "@/constants";
-import { createFeedback } from "@/actions/ai-interview";
+import { createFeedback, initializeInterview, saveTranscriptTurn } from "@/actions/ai-interview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bot, Loader2, Phone, PhoneOff, User } from "lucide-react";
@@ -24,12 +24,13 @@ const Agent = ({ userName, userId, type, interviewId, questions }) => {
   const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
   const [messages, setMessages] = useState([]);
   const transcriptEndRef = useRef(null);
+  const interviewIdRef = useRef(interviewId); // Keep track of the active interview ID
 
   useEffect(() => {
     const onCallStart = () => setCallStatus(CallStatus.ACTIVE);
     const onCallEnd = () => setCallStatus(CallStatus.FINISHED);
 
-    const onMessage = (message) => {
+    const onMessage = async (message) => {
       if (message.type === "transcript" && message.transcriptType === "final") {
         const newMessage = {
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -38,6 +39,11 @@ const Agent = ({ userName, userId, type, interviewId, questions }) => {
         };
 
         setMessages((prev) => [...prev, newMessage]);
+
+        // Save instantly to database to prevent any data loss
+        if (interviewIdRef.current) {
+          await saveTranscriptTurn(interviewIdRef.current, message.role, message.transcript);
+        }
       }
     };
 
@@ -63,17 +69,19 @@ const Agent = ({ userName, userId, type, interviewId, questions }) => {
     };
   }, []);
 
-  const handleGenerateFeedback = async (msgs) => {
+  const handleGenerateFeedback = async () => {
     console.log("Generate feedback here.");
+    if (!interviewIdRef.current) {
+      router.push("/");
+      return;
+    }
 
     const { success, feedbackId: id } = await createFeedback({
-      interviewId: interviewId,
-      userId: userId,
-      transcript: msgs,
+      interviewId: interviewIdRef.current,
     });
 
     if (success && id) {
-      router.push(`/interview/${interviewId}/feedback`);
+      router.push(`/interview/${interviewIdRef.current}/feedback`);
     } else {
       console.log("Error saving feedback.");
       router.push("/");
@@ -82,13 +90,9 @@ const Agent = ({ userName, userId, type, interviewId, questions }) => {
 
   useEffect(() => {
     if (callStatus === CallStatus.FINISHED) {
-      if (type === "generate") {
-        router.push("/");
-      } else {
-        handleGenerateFeedback(messages);
-      }
+      handleGenerateFeedback();
     }
-  }, [messages, callStatus, type, userId]);
+  }, [callStatus]);
 
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,6 +100,18 @@ const Agent = ({ userName, userId, type, interviewId, questions }) => {
 
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
+
+    // CRITICAL: Ensure interview is ALWAYS created before Vapi starts
+    if (!interviewIdRef.current) {
+      const { success, interviewId: newId, error } = await initializeInterview();
+      if (success) {
+        interviewIdRef.current = newId;
+      } else {
+        console.error("Failed to initialize interview", error);
+        setCallStatus(CallStatus.INACTIVE);
+        return; // Don't start vapi if we can't create DB record
+      }
+    }
 
     if (type === "generate") {
       await vapi.start("10bd4b2a-d36f-422f-bab4-2b110ef3f4a5", {
