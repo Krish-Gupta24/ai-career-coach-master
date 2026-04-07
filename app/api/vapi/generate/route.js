@@ -55,10 +55,15 @@ export async function POST(request) {
         type,
         level,
         techstack: stack,
-        questions: parsedQuestions,
         userId: user.id,
         finalized: true,
         coverImage: getRandomInterviewCover(),
+        questions: {
+          create: parsedQuestions.map((q, idx) => ({
+            questionText: q,
+            order: idx + 1,
+          })),
+        },
       },
     });
 
