@@ -7,6 +7,7 @@ import {
   MessageSquareText,
   Lightbulb,
   ScanFace,
+  ClipboardList,
 } from "lucide-react";
 
 const iconClass = "w-10 h-10 mb-4 text-primary";
