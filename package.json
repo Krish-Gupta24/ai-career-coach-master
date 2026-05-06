@@ -35,7 +35,7 @@
     "dayjs": "^1.11.20",
     "groq-sdk": "^1.1.2",
     "html2pdf.js": "^0.10.2",
-    "inngest": "^3.29.3",
+    "inngest": "^3.54.0",
     "lucide-react": "^0.471.2",
     "motion": "^12.38.0",
     "next": "15.3.2",
