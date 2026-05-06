@@ -1,11 +1,20 @@
+export const dynamic = "force-dynamic";
+
 import { getInterviewById } from "@/actions/ai-interview";
 import { redirect } from "next/navigation";
 
 const FeedbackPage = async ({ params }) => {
-  const { id } = params;
+  const id = params?.id;
+
+  if (!id) {
+    redirect("/");
+  }
 
   const interview = await getInterviewById(id);
-  if (!interview) redirect("/");
+
+  if (!interview) {
+    redirect("/");
+  }
 
   const feedback = interview.feedback || [];
 
@@ -13,15 +22,14 @@ const FeedbackPage = async ({ params }) => {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold text-center">Interview Feedback</h1>
 
-      {/* 🔥 Overall */}
       <div className="bg-[#1a1416] p-4 rounded-xl">
         <h2 className="text-xl font-semibold mb-2">Overall Score</h2>
+
         <p className="text-2xl font-bold text-[#ce4646]">
           {interview.totalScore || "N/A"}
         </p>
       </div>
 
-      {/* 🔥 Per Question */}
       {feedback.map((item) => (
         <div
           key={item.number}
